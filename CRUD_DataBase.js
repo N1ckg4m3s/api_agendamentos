@@ -6,5 +6,5 @@
     
     Aparentemente esse Script é INUTIL, pois as requisições são complexas...
 */
-const Conexao=require('./Connect_DataBase')
+const ConexaoDataBase=require('./Connect_DataBase')
 

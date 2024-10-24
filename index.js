@@ -5,15 +5,13 @@
         Criação: Nicolas de Aguiar Silva (22/10/2024);
         Ultima_Atualização: ## (##/##/##);
 */
-
-const Conexao=require('./Connect_DataBase')
 const express = require('express');
+require('./Model/UserModel')
 require('dotenv').config();
 require('dotenv').config({ path: 'Secundary.env' })
 
 const app = express();
 const port = process.env.Porta_acesso || 3000;
-const db = new Conexao(); 
 
 app.get('/', (req, res) => {
   res.send('Hola Mundo');
