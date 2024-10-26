@@ -5,26 +5,29 @@
         Criação: Nicolas de Aguiar Silva (22/10/2024);
         Ultima_Atualização: ## (##/##/##);
 */
+const ConexaoDataBase=require('./Connect_DataBase')
+const db=new ConexaoDataBase();
+
 const express = require('express');
 const Client_Routes=require("./Rotas/Router_Cliente")
+const Agendamento_Routes=require("./Rotas/Router_Agendamento")
+const Funcionario_Routes=require("./Rotas/Router_Funcionario")
+const Dono_Routes=require("./Rotas/Router_Dono")
 
-require('./Model/UserModel')
+// Requisição dos .env
 require('dotenv').config();
 require('dotenv').config({ path: 'Secundary.env' })
 
 const app = express();
 const port = process.env.Porta_acesso || 3000;
 
-app.get('/', (req, res) => {
-  res.send('Hola Mundo');
-});
-
-app.listen(port, () => {
-  console.log(`Servidor Executando em http://localhost:${port}`);
-});
+app.get('/', (req, res) => {res.send('Hola Mundo')});
 
                 /* FUNÇÕES DO CLIENT */
 app.use('/Client', Client_Routes);
+app.use('/Agendamento', Agendamento_Routes);
+app.use('/Funcionario', Funcionario_Routes);
+app.use('/Dono', Dono_Routes);
 
                 /* FUNÇÕES DO FUNCIONARIO */
 // app.use('/Funcionario', Client_Routes);
@@ -53,3 +56,7 @@ app.use('/Client', Client_Routes);
     Excluir Serviço: Para remover um serviço do sistema.
     Excluir Funcionario: Para remover um funcionario do sistema.
 */
+
+const server = app.listen(port, () => {/*console.log(`Servidor Executando em http://localhost:${port}`)*/});
+  
+module.exports = { app, server,db };

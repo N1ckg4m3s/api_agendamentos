@@ -7,7 +7,7 @@
         Criação: Nicolas de Aguiar Silva (22/10/2024);
         Ultima_Atualização: ## (##/##/##);
 */
-const ConexaoDataBase=require('../Connect_DataBase')
+const {db} =require('../index')
 
 /* FUNÇÕES DE GET */
 function Obter_Servicos(){
@@ -57,4 +57,14 @@ module.exports={
 
     // Delete
     Excluir_Agendamento,
+
+    Teste: async () => {
+        try {
+            const results = await db.query("SELECT * FROM meuEsquema.Cliente", []);
+            return results; // Retorna os resultados
+        } catch (error) {
+            console.error('Erro ao executar a query:', error);
+            throw error; // Repassa o erro
+        }
+    }
 }
