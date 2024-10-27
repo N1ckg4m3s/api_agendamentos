@@ -1,37 +1,26 @@
-// const request = require('supertest');
-const { app, server, db } = require('./index');
-
-const FuncoesCliente = require("./Controller/Funcoes_Cliente")
+const request = require('supertest');
+var { app, server } = require('./index');
+const db = require('./Connect_DataBase');
 
 afterAll(async () => {
   await db.finalizarConexao();
-  server.close(); // Fecha o servidor
+  server.close()
 });
 
-test('CONECTAR AO BANCO DE DADOS', async () => {
-  await expect(db.connect()).resolves.toBeUndefined();
+beforeAll(async () => {
+  await db.connect();
 });
 
-test('INICIAR REDE DE TESTES | APAGAR DATA BASE', async () => {
-  await db.query('DELETE FROM meuEsquema.Trabalho_Profissional');
-  await db.query('DELETE FROM meuEsquema.Agendamento');
-  await db.query('DELETE FROM meuEsquema.Trabalho');
-  await db.query('DELETE FROM meuEsquema.Profissional');
-  await db.query('DELETE FROM meuEsquema.Cliente');
-});
+describe("Inicio dos testes", () => {
+  test('Connectar ao banco', async () => {
+    await expect(db.connect()).resolves.toBeUndefined();
+  });
+})
 
-        /* TESTES LADO CLIENTE */
-    /* GET */
-// test('TESTE GET', async () => {
-// });
-    /* POST */
-// test('TESTE POST', async () => {
-// });
-    /* PUT */
-// test('TESTE PUT', async () => {
-// });
-    /* DELETE */
-// test('TESTE DELETE', async () => {
-// });
-
-
+describe("Apenas Obtenções", () => {
+  test('Deve retornar uma lista de Servicos', async () => {
+    const response = await request(app).get('/Servico/Obter_Todos_Servico');
+    expect(response.status).toBe(200);
+    expect(response.body).toBeInstanceOf(Array);
+  });
+})

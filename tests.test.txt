@@ -1,0 +1,192 @@
+// const request = require('supertest');
+const { app, server, db } = require('./index');
+
+const FuncoesCliente = require("./Controller/Funcoes_Cliente")
+
+afterAll(async () => {
+  await db.finalizarConexao();
+  server.close(); // Fecha o servidor
+});
+
+function GetDeTudo(){
+  test('Obter tabela Cliente', async () => {
+    const result = await db.query('SELECT * FROM meuEsquema.Cliente');
+    const records = result.recordset || [];
+    expect(records).toBeDefined();
+  });
+  test('Obter tabela Trabalho', async () => {
+    const result = await db.query('SELECT * FROM meuEsquema.Trabalho');
+    const records = result.recordset || [];
+    expect(records).toBeDefined();
+  });
+  test('Obter tabela Profissional', async () => {
+    const result = await db.query('SELECT * FROM meuEsquema.Profissional');
+    const records = result.recordset || [];
+    expect(records).toBeDefined();
+  });
+  test('Obter tabela Trabalho_Profissional', async () => {
+    const result = await db.query('SELECT * FROM meuEsquema.Trabalho_Profissional');
+    const records = result.recordset || [];
+    expect(records).toBeDefined();
+  });
+  test('Obter tabela Agendamento', async () => {
+    const result = await db.query('SELECT * FROM meuEsquema.Agendamento');
+    const records = result.recordset || [];
+    expect(records).toBeDefined();
+  });
+}
+
+
+describe("Inicio dos testes",()=>{
+  test('Connectar ao banco', async () => {
+    await expect(db.connect()).resolves.toBeUndefined();
+  });
+  
+  test('Iniciar testes | Apagar DataBase', async () => {
+    await db.query('DELETE FROM meuEsquema.Trabalho_Profissional');
+    await db.query('DELETE FROM meuEsquema.Agendamento');
+    await db.query('DELETE FROM meuEsquema.Trabalho');
+    await db.query('DELETE FROM meuEsquema.Profissional');
+    await db.query('DELETE FROM meuEsquema.Cliente');
+  });
+
+  test('Zerar identidade', async () => {
+    await db.query('DBCC CHECKIDENT (\'meuEsquema.Agendamento\', RESEED, 0)');
+    await db.query('DBCC CHECKIDENT (\'meuEsquema.Cliente\', RESEED, 0)');
+    await db.query('DBCC CHECKIDENT (\'meuEsquema.Profissional\', RESEED, 0)');
+    await db.query('DBCC CHECKIDENT (\'meuEsquema.Trabalho\', RESEED, 0)');
+    await db.query('DBCC CHECKIDENT (\'meuEsquema.Trabalho_Profissional\', RESEED, 0)');
+  });
+})
+
+        /* TESTES DO CLIENTE */
+    /* POST */
+describe("Testes de POST",()=>{
+  test('Inserir Cliente', async () => {
+    const Result = await db.query(
+      'INSERT INTO meuEsquema.Cliente (Nome, Acesso, Senha) VALUES (@Nome, @Acesso, @Senha)', {
+        Nome: "Nome",
+        Acesso: "Acesso",
+        Senha: "Senha"
+      }
+    );
+    expect(Result.rowsAffected[0]).toBe(1); // Verifica se uma linha foi afetada
+  });
+  test('Inserir Trabalho', async () => {
+    const Result = await db.query(
+      'INSERT INTO meuEsquema.Trabalho (Nome, Descricao, Tempo_Previsto, Valor) VALUES (@Nome, @Descricao, @Tempo_Previsto, @Valor)', {
+        Nome: "Nome",
+        Descricao: "Descricao",
+        Tempo_Previsto: 0,
+        Valor: "Valor"
+      }
+    );
+    expect(Result.rowsAffected[0]).toBe(1); // Verifica se uma linha foi afetada
+  });
+  test('Inserir Profissional', async () => {
+    const Result = await db.query(
+      'INSERT INTO meuEsquema.Profissional (Nome, Acesso, Senha, Tipo_Acesso) VALUES (@Nome, @Acesso, @Senha, @Tipo_Acesso)', {
+        Nome: "Nome",
+        Acesso: "Acesso",
+        Senha: "Senha",
+        Tipo_Acesso: 1
+      }
+    );
+    expect(Result.rowsAffected[0]).toBe(1); // Verifica se uma linha foi afetada
+  });
+  test('Inserir Trabalho_Profissional', async () => {
+    const Result = await db.query(
+      'INSERT INTO meuEsquema.Trabalho_Profissional (TrabalhoId, ProfissionalId) VALUES (@TrabalhoId, @ProfissionalId)', {
+        TrabalhoId: 1,
+        ProfissionalId: 1
+      }
+    );
+    expect(Result.rowsAffected[0]).toBe(1); // Verifica se uma linha foi afetada
+  });
+  test('Inserir Agendamento', async () => {
+    const Result = await db.query(
+      'INSERT INTO meuEsquema.Agendamento (Cliente_Id, Profissional_Id, Trabalho_Id, Horario, Data, Consumo_Tempo) VALUES (@Cliente_Id, @Profissional_Id, @Trabalho_Id, @Horario, @Data, @Consumo_Tempo)', {
+        Cliente_Id : 1,
+        Profissional_Id : 1,
+        Trabalho_Id : 1,
+        Horario : 1,
+        Data : "2024-10-28",
+        Consumo_Tempo : 3
+      }
+    );
+    expect(Result.rowsAffected[0]).toBe(1); // Verifica se uma linha foi afetada
+  });
+})
+/* GET */
+describe("Get de todas as tabelas | Apos POST",()=>{GetDeTudo()}) 
+    /* PUT */
+describe("Teste PUT",()=>{
+  test('Alterar informação Cliente', async () => {
+    const Result = await db.query(
+      'UPDATE meuEsquema.Cliente SET Nome = @Nome, Acesso = @Acesso, Senha = @Senha WHERE id = @id', {
+        id: 1,
+        Nome: "Nome_ALTERADO",
+        Acesso: "Acesso_ALTERADO",
+        Senha: "Senha_ALTERADO"
+      }
+    );
+    expect(Result.rowsAffected[0]).toBe(1); // Verifica se uma linha foi afetada
+  });
+  test('Alterar informação Trabalho', async () => {
+    const Result = await db.query(
+      'UPDATE meuEsquema.Trabalho SET Nome=@Nome, Descricao=@Descricao, Tempo_Previsto=@Tempo_Previsto, Valor=@Valor WHERE id=@id', {
+        id:1,
+        Nome: "Nome_ALTERADO",
+        Descricao: "Descricao_ALTERADO",
+        Tempo_Previsto: 5,
+        Valor: "Valor_ALTERADO"
+      }
+    );
+    expect(Result.rowsAffected[0]).toBe(1); // Verifica se uma linha foi afetada
+  });
+  test('Alterar informação Profissional', async () => {
+    const Result = await db.query(
+      'UPDATE meuEsquema.Profissional SET Nome=@Nome, Acesso=@Acesso, Senha=@Senha, Tipo_Acesso=@Tipo_Acesso WHERE id=@id', {
+        id:1,
+        Nome: "Nome_ALTERADO",
+        Acesso: "Acesso_ALTERADO",
+        Senha: "Senha_ALTERADO",
+        Tipo_Acesso: 3
+      }
+    );
+    expect(Result.rowsAffected[0]).toBe(1); // Verifica se uma linha foi afetada
+  });
+  test('Alterar informação Trabalho_Profissional', async () => {
+    const Result = await db.query(
+      'UPDATE meuEsquema.Trabalho_Profissional SET TrabalhoId=@TrabalhoId, ProfissionalId=@ProfissionalId WHERE id=@id', {
+        id:1,
+        TrabalhoId: 1,
+        ProfissionalId: 1
+      }
+    );
+    expect(Result.rowsAffected[0]).toBe(1); // Verifica se uma linha foi afetada
+  });
+  test('Alterar informação Agendamento', async () => {
+    const Result = await db.query(
+      'UPDATE meuEsquema.Agendamento SET Cliente_Id=@Cliente_Id, Profissional_Id=@Profissional_Id, Trabalho_Id=@Trabalho_Id, Horario=@Horario, Data=@Data, Consumo_Tempo=@Consumo_Tempo WHERE id=@id', {
+        id:1,
+        Cliente_Id : 1,
+        Profissional_Id : 1,
+        Trabalho_Id : 1,
+        Horario : 1,
+        Data : "2024-10-30",
+        Consumo_Tempo : 5
+      }
+    );
+    expect(Result.rowsAffected[0]).toBe(1); // Verifica se uma linha foi afetada
+  });
+})
+    /* GET */
+describe("Get de todas as tabelas | Apos PUT",()=>{GetDeTudo()})
+    /* DELETE */
+describe("DESCRIÇÃO DO TESTE",()=>{
+  test('Teste Delete', async () => {
+  });
+})
+    /* GET */
+describe("Get de todas as tabelas | Apos DELETE",()=>{GetDeTudo()})

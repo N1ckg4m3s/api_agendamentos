@@ -9,23 +9,28 @@ const sql = require('mssql');
 require('dotenv').config();
 
 const config = {
-    user: process.env.Usuario, // 'Teste_Theus_Banco'
-    password: process.env.Senha, // 'Teste_Theus_Banco'
-    server: process.env.Hospedagem_banco || 'localhost', // ex: '127.0.0.1'
-    database: process.env.Banco, // 'Teste_Theus_Banco'
+    user: process.env.Usuario,
+    password: process.env.Senha,
+    server: process.env.Hospedagem_banco || 'localhost',
+    database: process.env.Banco,
     port: 1433,
     options: {
-        encrypt: false, // Defina como true se estiver usando Azure
-        trustServerCertificate: true // Use true em ambientes de desenvolvimento
+        encrypt: false,
+        trustServerCertificate: true
     }
 };
 
 class ConexaoDataBase {
-    constructor() {this.connect();}
+    constructor() {
+        this.pool = null;
+        this.connect();
+    }
 
     async connect() {
+        if (this.pool == sql.ConnectionPool) return;
         try {
             this.pool = await sql.connect(config);
+            console.log("Conectado ao banco de dados");
         } catch (err) {
             console.error("Erro ao conectar ao banco de dados:", err);
         }
@@ -43,7 +48,7 @@ class ConexaoDataBase {
             }
 
             const result = await request.query(sqlQuery);
-            return result.recordset;
+            return result;
         } catch (error) {
             console.error('Erro ao executar a query:', error);
             throw error;
@@ -60,4 +65,5 @@ class ConexaoDataBase {
     }
 }
 
-module.exports = ConexaoDataBase;
+const conexaoDB = new ConexaoDataBase(); // Inicializa a conexão
+module.exports = conexaoDB; // Exporta a instância da conexão
