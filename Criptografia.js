@@ -10,10 +10,14 @@ function Criptografar_Dados(Dados){
 }
 
 function Descriptografar_Dados(Dado_Critografado){
-    const decipher = crypto.createDecipher('aes-256-cbc', ChaveDeCriptografia);
-    let Descriptografado = decipher.update(Dado_Critografado, 'hex', 'utf8');
-    Descriptografado += decipher.final('utf8');
-    return Descriptografado;
+    try{
+        const decipher = crypto.createDecipher('aes-256-cbc', ChaveDeCriptografia);
+        let Descriptografado = decipher.update(Dado_Critografado, 'hex', 'utf8');
+        Descriptografado += decipher.final('utf8');
+        return Descriptografado;
+    }catch(e){
+        return null
+    }
 }
 
 module.exports={

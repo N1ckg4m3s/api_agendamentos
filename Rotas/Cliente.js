@@ -10,6 +10,6 @@ router.delete("/Remover_Cliente",Funcoes_Cliente.Remover_Cliente);
 
 router.put("/Alterar_Informacoes_Cliente",Funcoes_Cliente.Alterar_Informacoes_Cliente);
 
-router.get("/Verificar_Credenciais_Cliente",Funcoes_Cliente.Verificar_Credenciais_Cliente);
+router.get("/Verificar_Cliente",Funcoes_Cliente.Verificar_Cliente);
 
 module.exports = router

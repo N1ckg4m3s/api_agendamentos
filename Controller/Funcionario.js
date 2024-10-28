@@ -31,12 +31,14 @@ async function Verificar_Credenciais_Funcionario(req, res) {
         if (result.recordset.length > 0) {
             const Rowrecordset=result.recordset[0]
 
-            const Id=Rowrecordset.id
-            const Nome=Rowrecordset.Nome
-            const Acesso=Rowrecordset.Acesso
-            const Tipo_Acesso=Rowrecordset.Tipo_Acesso
+            const Parametros={
+                Id: Rowrecordset.id,
+                Nome: Rowrecordset.Nome,
+                Acesso: Rowrecordset.Acesso,
+                Tipo_Acesso: Rowrecordset.Tipo_Acesso
+            }
 
-            return res.status(200).json(Criptografia.Criptografar_Dados(`${Id}/*\\${Nome}/*\\${Acesso}/*\\${Tipo_Acesso}`));
+            return res.status(200).json(Criptografia.Criptografar_Dados(JSON.stringify(Parametros)));
         } else {
             return res.status(404).json({ error: "Credenciais não encontradas" });
         }
