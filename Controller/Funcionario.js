@@ -4,6 +4,7 @@
         Ultima_Atualização: ## (##/##/##);
 */
 const db = require('../Connect_DataBase');
+const Criptografia=require('../Criptografia');
 
 async function Novo_Funcionario(req, res) {
     // Adiciona um novo funcionario
@@ -18,8 +19,31 @@ async function Alterar_Informacoes_Funcionario(req, res) {
     return res.status(503).send('Under Construction');
 }
 async function Verificar_Credenciais_Funcionario(req, res) {
-    // Verifica Credenciais do Funcionario
-    return res.status(503).send('Under Construction');
+    try {
+        const { Acesso, Senha } = req.query;
+        const result = await db.query(
+            'SELECT * FROM meuEsquema.Profissional WHERE Acesso = @Acesso AND Senha = @Senha',
+            {
+                Acesso: Acesso,
+                Senha: Senha
+            }
+        );
+        if (result.recordset.length > 0) {
+            const Rowrecordset=result.recordset[0]
+
+            const Id=Rowrecordset.id
+            const Nome=Rowrecordset.Nome
+            const Acesso=Rowrecordset.Acesso
+            const Tipo_Acesso=Rowrecordset.Tipo_Acesso
+
+            return res.status(200).json(Criptografia.Criptografar_Dados(`${Id}/*\\${Nome}/*\\${Acesso}/*\\${Tipo_Acesso}`));
+        } else {
+            return res.status(404).json({ error: "Credenciais não encontradas" });
+        }
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ error: "Erro ao verificar Credenciais" })
+    }
 }
 
 module.exports = {
