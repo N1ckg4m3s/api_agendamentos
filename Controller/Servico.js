@@ -28,7 +28,6 @@ async function Obter_Todos_Servico(req, res) {
         }
         return res.status(200).json(records)
     } catch (e) {
-        console.error(e);
         return res.status(500).json({ Erro: `Erro ao obter dados do banco de dado` })
     }
 }

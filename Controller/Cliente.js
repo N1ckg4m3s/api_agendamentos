@@ -5,6 +5,9 @@
 */
 const db = require('../Connect_DataBase');
 const Criptografia = require('../Criptografia');
+require('dotenv').config();
+
+const ChaveCrypto=process.env.Chave_Cripto_Cliente
 
 async function Novo_Cliente(req, res) {
     // Adiciona um novo Cliente ao banco de dados
@@ -19,8 +22,8 @@ async function Alterar_Informacoes_Cliente(req, res) {
     return res.status(503).send('Under Construction');
 }
 async function Verificar_Cliente(req, res) {
+    const { Acesso, Senha } = req.query;
     try {
-        const { Acesso, Senha } = req.query;
         const result = await db.query(
             'SELECT * FROM meuEsquema.Cliente WHERE Acesso = @Acesso AND Senha = @Senha',
             {
@@ -32,24 +35,24 @@ async function Verificar_Cliente(req, res) {
             const Rowrecordset = result.recordset[0]
 
             const Parametros = {
+                DataType: "Cliente",
                 Id: Rowrecordset.id,
                 Nome: Rowrecordset.Nome,
                 Acesso: Rowrecordset.Acesso,
                 Tipo_Acesso: -1
             }
 
-            return res.status(200).json(Criptografia.Criptografar_Dados(JSON.stringify(Parametros)));
+            return res.status(200).json(Criptografia.Criptografar_Dados(JSON.stringify(Parametros),ChaveCrypto));
         } else {
             return res.status(404).json({ error: "Credenciais não encontradas" });
         }
     } catch (e) {
-        console.error(e);
         return res.status(500).json({ error: "Erro ao verificar credenciais" });
     }
-
 }
+
 async function Verificar_Credenciais_Cliente(Credenciais) {
-    const Dados_Descriptografados = Criptografia.Descriptografar_Dados(Credenciais)
+    const Dados_Descriptografados = Criptografia.Descriptografar_Dados(Credenciais,ChaveCrypto)
     if (!Dados_Descriptografados) return true
 
     const Dados_Parse = JSON.parse(Dados_Descriptografados)

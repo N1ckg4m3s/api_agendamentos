@@ -14,7 +14,6 @@ const Route_Servico=require("./Rotas/Servico")
 
 // Requisição dos .env
 require('dotenv').config();
-require('dotenv').config({ path: 'Secundary.env' })
 
 const app = express();
 const port = process.env.Porta_acesso || 3000;
