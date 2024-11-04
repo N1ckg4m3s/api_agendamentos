@@ -2,15 +2,15 @@ const request = require('supertest');
 const { app, server } = require('./index');
 const db = require('./Connect_DataBase');
 
-const Cred_Cliente='c37c2d5f0e134cdc9e1048fac227ae8a218ac8c16bcf1d35f28cff0f8fd833ca70298d6a73ff5a7a6a1254ae1e2194bfb6da1ef45e1719cccede02e5e967c65e29c0365b56fb01b444935a49b81d3bb5350f10a4ced2911ec1e1903fdc4cb108';
-const Cred_Func='461c01d815a83c29eb1080c552749b2a3c493a3e41938f456ca64334fd59d11ac1cd36f7d9c5aa77cb2d424f0842d4a28c5937de1a5a5690800db48cd4a219acf7aa310bf6a94631f538262d0f9f216484e355ac08e38ff68555e938a41b3b9d';
+const Cred_Cliente = 'c37c2d5f0e134cdc9e1048fac227ae8a218ac8c16bcf1d35f28cff0f8fd833ca70298d6a73ff5a7a6a1254ae1e2194bfb6da1ef45e1719cccede02e5e967c65e29c0365b56fb01b444935a49b81d3bb5350f10a4ced2911ec1e1903fdc4cb108';
+const Cred_Func = '461c01d815a83c29eb1080c552749b2a3c493a3e41938f456ca64334fd59d11ac1cd36f7d9c5aa77cb2d424f0842d4a28c5937de1a5a5690800db48cd4a219acf7aa310bf6a94631f538262d0f9f216484e355ac08e38ff68555e938a41b3b9d';
 
-const Testar_Agendamentos=false
-const Testar_Cliente=false
-const Testar_Funcionarios=false
-const Testar_Servicos=false
+const Testar_Agendamentos = false
+const Testar_Cliente = false
+const Testar_Funcionarios = false
+const Testar_Servicos = true
 
-const TESTAR_TUDO=false
+const TESTAR_TUDO = false
 
 
 afterAll(async () => {
@@ -28,7 +28,7 @@ describe("Inicio dos testes", () => {
   });
 })
 
-if (Testar_Agendamentos || TESTAR_TUDO){
+if (Testar_Agendamentos || TESTAR_TUDO) {
   test("Obter os Verificar Disponibilidade Horario Mesmo Dia", async () => {
     const response = await request(app).get('/Agendamento/Verificar_Disponibilidade')
       .query({
@@ -39,7 +39,7 @@ if (Testar_Agendamentos || TESTAR_TUDO){
     const records = response.body || [];
     expect(response.status).toBe(200);
   });
-  
+
   describe("Tentativas de agendar sem informação correta", () => {
     test("Agendar sem NADA", async () => {
       const response = await request(app).post('/Agendamento/Novo_Agendamento')
@@ -161,7 +161,7 @@ if (Testar_Agendamentos || TESTAR_TUDO){
         });
       expect(response.status).not.toBe(200);
     });
-  
+
     test("Agendar com todos os dados certinho", async () => {
       const response = await request(app).post('/Agendamento/Novo_Agendamento')
         .query({
@@ -175,7 +175,7 @@ if (Testar_Agendamentos || TESTAR_TUDO){
       expect(response.status).toBe(200);
     });
   })
-  
+
   describe("Tentativas de modificar sem informação correta", () => {
     // Credenciais, AgendamentoID, Mudancas
     test("sem Credenciais", async () => {
@@ -313,7 +313,7 @@ if (Testar_Agendamentos || TESTAR_TUDO){
         });
       expect(response.status).not.toBe(200);
     })
-  
+
     test('Modificar com tudo certinho', async () => {
       const response = await request(app).put('/Agendamento/Modificar_Agendamento')
         .query({
@@ -330,7 +330,7 @@ if (Testar_Agendamentos || TESTAR_TUDO){
       expect(response.status).toBe(200);
     })
   })
-  
+
   describe("Tentativas de excluir sem informação correta", () => {
     test('Sem Credenciais', async () => {
       const response = await request(app).delete('/Agendamento/Remover_Agendamento')
@@ -356,7 +356,7 @@ if (Testar_Agendamentos || TESTAR_TUDO){
         });
       expect(response.status).not.toBe(200);
     })
-  
+
     test('Excluir com tudo certinho', async () => {
       // ta funcionando, mas retirei pois precisava ficar trocando o ID
       // const response = await request(app).delete('/Agendamento/Remover_Agendamento')
@@ -367,7 +367,7 @@ if (Testar_Agendamentos || TESTAR_TUDO){
       // expect(response.status).toBe(200);
     })
   })
-  
+
   describe('Obtenções de Todos os Agendamentos', () => {
     test('Obter Todos | Sem Credenciais', async () => {
       const response = await request(app).get('/Agendamento/Obter_Agendamentos')
@@ -398,12 +398,12 @@ if (Testar_Agendamentos || TESTAR_TUDO){
         });
       expect(response.status).toBe(200);
     })
-  
+
     test('Obter_Agendamentos_do_Dia | Sem Credenciais', async () => {
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Dia')
         .query({
           Credenciais: '',
-          Data:''
+          Data: ''
         });
       expect(response.status).not.toBe(200);
     })
@@ -411,7 +411,7 @@ if (Testar_Agendamentos || TESTAR_TUDO){
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Dia')
         .query({
           Credenciais: 'ash1ash6warfjwAWsdjtrzakz4rk14tkA6dz1k6z1k6zgGfj1dsf16aj1a',
-          Data:''
+          Data: ''
         });
       expect(response.status).not.toBe(200);
     })
@@ -419,7 +419,7 @@ if (Testar_Agendamentos || TESTAR_TUDO){
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Dia')
         .query({
           Credenciais: Cred_Func,
-          Data:''
+          Data: ''
         });
       expect(response.status).not.toBe(200);
     })
@@ -427,7 +427,7 @@ if (Testar_Agendamentos || TESTAR_TUDO){
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Dia')
         .query({
           Credenciais: Cred_Func,
-          Data:'07/10/2024'
+          Data: '07/10/2024'
         });
       expect(response.status).not.toBe(200);
     })
@@ -435,16 +435,16 @@ if (Testar_Agendamentos || TESTAR_TUDO){
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Dia')
         .query({
           Credenciais: Cred_Func,
-          Data:'2024-10-28'
+          Data: '2024-10-28'
         });
       expect(response.status).toBe(200);
     })
-  
+
     test('Obter_Agendamentos_do_Usuario | Sem Credenciais', async () => {
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Usuario')
         .query({
           Credenciais: '',
-          UserId:''
+          UserId: ''
         });
       expect(response.status).not.toBe(200);
     })
@@ -452,7 +452,7 @@ if (Testar_Agendamentos || TESTAR_TUDO){
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Usuario')
         .query({
           Credenciais: 'khjasbdjkanskdjbas451ag1 f1dg45 61fg1a 6f1d ',
-          UserId:''
+          UserId: ''
         });
       expect(response.status).not.toBe(200);
     })
@@ -460,16 +460,16 @@ if (Testar_Agendamentos || TESTAR_TUDO){
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Usuario')
         .query({
           Credenciais: 'khjasbdjkanskdjbas451ag1 f1dg45 61fg1a 6f1d ',
-          UserId:'1'
+          UserId: '1'
         });
       expect(response.status).not.toBe(200);
     })
-  
+
     test('Obter_Agendamentos_do_Usuario | Cred_Cliente Sem ID', async () => {
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Usuario')
         .query({
           Credenciais: Cred_Cliente,
-          UserId:''
+          UserId: ''
         });
       expect(response.status).not.toBe(200);
     })
@@ -477,7 +477,7 @@ if (Testar_Agendamentos || TESTAR_TUDO){
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Usuario')
         .query({
           Credenciais: Cred_Func,
-          UserId:''
+          UserId: ''
         });
       expect(response.status).not.toBe(200);
     })
@@ -485,16 +485,16 @@ if (Testar_Agendamentos || TESTAR_TUDO){
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Usuario')
         .query({
           Credenciais: Cred_Cliente,
-          UserId:'2'
+          UserId: '2'
         });
       expect(response.status).not.toBe(200);
     })
-  
+
     test('Obter_Agendamentos_do_Usuario | Cred_Func Certinho', async () => {
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Usuario')
         .query({
           Credenciais: Cred_Func,
-          UserId:'2'
+          UserId: '2'
         });
       expect(response.status).toBe(200);
     })
@@ -502,14 +502,14 @@ if (Testar_Agendamentos || TESTAR_TUDO){
       const response = await request(app).get('/Agendamento/Obter_Agendamentos_do_Usuario')
         .query({
           Credenciais: Cred_Cliente,
-          UserId:'1'
+          UserId: '1'
         });
       expect(response.status).toBe(200);
     })
   })
 }
-if (Testar_Cliente || TESTAR_TUDO){
-  describe('Entrar Corretamente',async ()=>{
+if (Testar_Cliente || TESTAR_TUDO) {
+  describe('Entrar Corretamente', async () => {
     test('Verificação com Acesso e Senha do Cliente', async () => {
       const response = await request(app).get('/Client/Verificar_Cliente')
         .query({
@@ -522,7 +522,7 @@ if (Testar_Cliente || TESTAR_TUDO){
     });
   })
 
-  describe('Verificar erros',async ()=>{
+  describe('Verificar erros', async () => {
     test('Verificação com Ingection do Cliente', async () => {
       const injectionResponse = await request(app).get('/Client/Verificar_Cliente')
         .query({
@@ -567,20 +567,20 @@ if (Testar_Cliente || TESTAR_TUDO){
 
   })
 }
-if (Testar_Funcionarios || TESTAR_TUDO){
-  describe('Entrar Corretamente',async ()=>{
+if (Testar_Funcionarios || TESTAR_TUDO) {
+  describe('Entrar Corretamente', async () => {
     test('Verificação com Acesso e Senha do Funcionario', async () => {
       const response = await request(app).get('/Funcionario/Verificar_Funcionario')
-      .query({
-        Acesso: "acesso1",
-        Senha: "senha1",
-      });
+        .query({
+          Acesso: "acesso1",
+          Senha: "senha1",
+        });
       const records = response.body || [];
       expect(response.status).toBe(200);
       expect(records).toBeDefined();
     });
   })
-  describe('Verificar erros',async ()=>{
+  describe('Verificar erros', async () => {
     test('Verificação com Ingection Funcionario', async () => {
       const injectionResponse = await request(app).get('/Funcionario/Verificar_Funcionario')
         .query({
@@ -623,10 +623,175 @@ if (Testar_Funcionarios || TESTAR_TUDO){
     });
   })
 }
-if (Testar_Servicos || TESTAR_TUDO){
+if (Testar_Servicos || TESTAR_TUDO) {
   test('Deve retornar uma lista de Servicos', async () => {
     const response = await request(app).get('/Servico/Obter_Todos_Servico');
     expect(response.status).toBe(200);
     expect(response.body).toBeInstanceOf(Array);
   });
+
+  describe('Tentar Adicionar Serviço', () => {
+    test('Sem Credenciais', async () => {
+      const Response = await request(app).post('/Servico/Novo_Servico')
+        .query({
+          Nome: 'Servico teste',
+          Descricao: '',
+          Tempo_Previsto: '7',
+          Valor: '50',
+          Foco_Profissional: [1, 2],
+          Credenciais: ''
+        });
+      expect(Response.status).not.toBe(200);
+    })
+    test('Credenciais Aleatoria', async () => {
+      const Response = await request(app).post('/Servico/Novo_Servico')
+        .query({
+          Nome: 'Servico teste',
+          Descricao: '',
+          Tempo_Previsto: '7',
+          Valor: '50',
+          Foco_Profissional: [1, 2],
+          Credenciais: 'jksandkjasndkjasn'
+        });
+      expect(Response.status).not.toBe(200);
+    })
+    test('Credenciais de Cliente', async () => {
+      const Response = await request(app).post('/Servico/Novo_Servico')
+        .query({
+          Nome: 'Servico teste',
+          Descricao: '',
+          Tempo_Previsto: '7',
+          Valor: '50',
+          Foco_Profissional: [1, 2],
+          Credenciais: Cred_Cliente
+        });
+      expect(Response.status).not.toBe(200);
+    })
+    test('Sem Nome', async () => {
+      const Response = await request(app).post('/Servico/Novo_Servico')
+        .query({
+          Nome: '',
+          Descricao: '',
+          Tempo_Previsto: '7',
+          Valor: '50',
+          Foco_Profissional: [1, 2],
+          Credenciais: Cred_Func
+        });
+      expect(Response.status).not.toBe(200);
+    })
+    test('Sem Tempo', async () => {
+      const Response = await request(app).post('/Servico/Novo_Servico')
+        .query({
+          Nome: 'Servico teste',
+          Descricao: '',
+          Tempo_Previsto: '',
+          Valor: '50',
+          Foco_Profissional: [1, 2],
+          Credenciais: Cred_Func
+        });
+      expect(Response.status).not.toBe(200);
+    })
+    test('Sem Valor', async () => {
+      const Response = await request(app).post('/Servico/Novo_Servico')
+        .query({
+          Nome: 'Servico teste',
+          Descricao: '',
+          Valor: '',
+          Tempo_Previsto: '7',
+          Foco_Profissional: [1, 2],
+          Credenciais: Cred_Func
+        });
+      expect(Response.status).not.toBe(200);
+    })
+    test('Sem Foco_Prof..', async () => {
+      const Response = await request(app).post('/Servico/Novo_Servico')
+        .query({
+          Nome: 'Servico teste',
+          Descricao: '',
+          Tempo_Previsto: '7',
+          Valor: '50',
+          Foco_Profissional: [],
+          Credenciais: Cred_Func
+        });
+      expect(Response.status).not.toBe(200);
+    })
+
+    test('Teste ingection', async () => {
+      const Response = await request(app).post('/Servico/Novo_Servico')
+        .query({
+          Nome: "' OR '1'='1",
+          Descricao: "' OR '1'='1",
+          Tempo_Previsto: "' OR '1'='1",
+          Valor: "' OR '1'='1",
+          Foco_Profissional: [],
+          Credenciais: Cred_Func
+        });
+      expect(Response.status).not.toBe(200);
+    })
+
+    test('Corretinho', async () => {
+      const Response = await request(app).post('/Servico/Novo_Servico')
+        .query({
+          Nome: 'Servico teste',
+          Descricao: '',
+          Tempo_Previsto: '7',
+          Valor: '50',
+          Foco_Profissional: [1, 2],
+          Credenciais: Cred_Func
+        });
+      expect(Response.status).toBe(200);
+    })
+  })
+
+  describe('Tentar Remover Serviço', () => {
+    test('Sem Credenciais', async () => {
+      const Response = await request(app).delete('/Servico/Remover_Servico')
+        .query({
+          Credenciais: '',
+          Id: '5',
+        })
+      expect(Response.status).not.toBe(200);
+    })
+    test('Credenciais Aleat.', async () => {
+      const Response = await request(app).delete('/Servico/Remover_Servico')
+        .query({
+          Credenciais: 'maslkdmasdlkm',
+          Id: '5',
+        })
+      expect(Response.status).not.toBe(200);
+    })
+    test('Credenciais Cliente', async () => {
+      const Response = await request(app).delete('/Servico/Remover_Servico')
+        .query({
+          Credenciais: Cred_Cliente,
+          Id: '5',
+        })
+      expect(Response.status).not.toBe(200);
+    })
+    test('Sem Id', async () => {
+      const Response = await request(app).delete('/Servico/Remover_Servico')
+        .query({
+          Credenciais: Cred_Func,
+          Id: '',
+        })
+      expect(Response.status).not.toBe(200);
+    })
+    test('Sem Id Inexistente', async () => {
+      const Response = await request(app).delete('/Servico/Remover_Servico')
+        .query({
+          Credenciais: Cred_Func,
+          Id: '-5',
+        })
+      expect(Response.status).not.toBe(200);
+    })
+
+    test('Certinho', async () => {
+      const Response = await request(app).delete('/Servico/Remover_Servico')
+        .query({
+          Credenciais: Cred_Func,
+          Id: '9',
+        })
+      expect(Response.status).toBe(200);
+    })
+  })
 }
