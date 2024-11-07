@@ -9,42 +9,116 @@ require('dotenv').config();
 
 const ChaveCrypto=process.env.Chave_Cripto_Funcionario
 
+function VerficarInjection(input) {
+    const sqlInjectionPattern = /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|--|\*|\bOR\b|\bAND\b)\b)/i;
+    return sqlInjectionPattern.test(input);
+}
+
 async function Novo_Funcionario(req, res) {
     // Adiciona um novo funcionario
-    return res.status(503).send('Under Construction');
+    const { Nome, Acesso, Senha, Credenciais } = req.query
+    try {
+        if (!Nome) throw ('Sem nome');
+        if (VerficarInjection(Nome)) throw ('Possivel ingection');
+
+        if (!Acesso) throw ('Sem Acesso');
+        if (VerficarInjection(Acesso)) throw ('Possivel ingection');
+
+        if (!Senha) throw ('Sem Senha');
+        if (VerficarInjection(Senha)) throw ('Possivel ingection');
+
+        const { Verificar_Credenciais, _ } = await Verificar_Credenciais_Funcionario(Credenciais)
+        if (Verificar_Credenciais == undefined || Verificar_Credenciais) throw ('Credenciais Errada');
+
+        const Result = await db.query(
+            'INSERT INTO meuEsquema.Profissional (Nome, Acesso, Senha) VALUES (@Nome, @Acesso, @Senha)', {
+            Nome: Nome,
+            Acesso: Acesso,
+            Senha: Senha
+        });
+        return Result.rowsAffected[0] > 0 && res.status(200).send('Sucess');
+    } catch (e) {
+        return res.status(500).send('Informações incorretar/indevidas')
+    }
 }
 async function Remover_Funcionario(req, res) {
     // Remove um funcionario
-    return res.status(503).send('Under Construction');
+    const { Id, Credenciais } = req.query
+    // Remove do banco de dados
+    try {
+        const { Verificar_Credenciais, Funcionario_Id } = await Verificar_Credenciais_Funcionario(Credenciais)
+        if (Verificar_Credenciais == undefined || Verificar_Credenciais) throw ('Credenciais Errada');
+
+        if (!Id) throw ('Sem Id');
+        if (VerficarInjection(Id)) throw ('Possivel ingection');
+
+        if (Id != Funcionario_Id) throw ('Id Diferente');
+
+        const Ag_Result = await db.query('DELETE FROM meuEsquema.Agendamento WHERE Profissional_Id=@Id', { Id: Id });
+        const Cl_Result = await db.query('DELETE FROM meuEsquema.Profissional WHERE id=@Id', { Id: Id });
+
+        if (Ag_Result.rowCount === 0 || Cl_Result.rowCount === 0) throw ('Nenhum registro encontrado para o Id fornecido');
+
+        return Cl_Result.rowsAffected[0] > 0 && res.status(200).send('Sucess');
+    } catch (e) {
+        return res.status(500).send('Informações incorretar/indevidas')
+    }
 }
 async function Alterar_Informacoes_Funcionario(req, res) {
     // Altera informações do funcionario
-    return res.status(503).send('Under Construction');
+    const { Id, Credenciais, Mudancas } = req.query
+    try {
+        if (!Id) throw ('Sem Id');
+        if (VerficarInjection(Id)) throw ('Possivel Ingection no Id');
+
+        if (!Mudancas.Nome) throw ('Sem Mudancas.Nome');
+        if (VerficarInjection(Mudancas.Nome)) throw ('Possivel Ingection no Nome');
+
+        if (!Mudancas.Senha) throw ('Sem Mudancas.Senha');
+        if (VerficarInjection(Mudancas.Senha)) throw ('Possivel Ingection na Senha');
+
+        const { Verificar_Credenciais, Funcionario_Id } = await Verificar_Credenciais_Cliente(Credenciais)
+        if (Verificar_Credenciais == undefined || Verificar_Credenciais) throw ('Credenciais Errada');
+
+        if (Funcionario_Id != Id) throw ('Ids Diferente');
+
+        const Result = await db.query(
+            'UPDATE meuEsquema.Profissional SET Nome = @Nome, Senha = @Senha WHERE id = @id', {
+            Id: 1,
+            Nome: Mudancas.Nome,
+            Senha: Mudancas.Senha,
+        });
+        return Result.rowsAffected[0] > 0 && res.status(200).send('Sucess');
+    } catch (e) {
+        return res.status(500).send('Informações incorretar/indevidas')
+    }
 }
 async function Verificar_Funcionario(req, res) {
     const { Acesso, Senha } = req.query;
     try {
-        const result = await db.query(
-            'SELECT * FROM meuEsquema.Profissional WHERE Acesso = @Acesso AND Senha = @Senha',
-            {
-                Acesso: Acesso,
-                Senha: Senha
-            }
-        );
+        if (!Acesso) throw ('Sem Acesso');
+        if (VerficarInjection(Acesso)) throw ('Possivel ingection');
 
-        
+        if (!Senha) throw ('Sem Senha');
+        if (VerficarInjection(Senha)) throw ('Possivel ingection');
+
+        const result = await db.query(
+            'SELECT * FROM meuEsquema.Profissional WHERE Acesso = @Acesso AND Senha = @Senha', {
+            Acesso: Acesso,
+            Senha: Senha
+        });
         if (result.recordset.length > 0) {
             const Rowrecordset = result.recordset[0]
-            
+
             const Parametros = {
-                DataType: "Profissional",
+                DataType: "Cliente",
                 Id: Rowrecordset.id,
                 Nome: Rowrecordset.Nome,
                 Acesso: Rowrecordset.Acesso,
-                Tipo_Acesso: Rowrecordset.Tipo_Acesso
+                Tipo_Acesso: -1
             }
 
-            return res.status(200).json(Criptografia.Criptografar_Dados(JSON.stringify(Parametros),ChaveCrypto));
+            return res.status(200).json(Criptografia.Criptografar_Dados(JSON.stringify(Parametros), ChaveCrypto));
         } else {
             return res.status(404).json({ error: "Credenciais não encontradas" });
         }

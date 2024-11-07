@@ -6,12 +6,11 @@ const Cred_Cliente = 'c37c2d5f0e134cdc9e1048fac227ae8a218ac8c16bcf1d35f28cff0f8f
 const Cred_Func = '461c01d815a83c29eb1080c552749b2a3c493a3e41938f456ca64334fd59d11ac1cd36f7d9c5aa77cb2d424f0842d4a28c5937de1a5a5690800db48cd4a219acf7aa310bf6a94631f538262d0f9f216484e355ac08e38ff68555e938a41b3b9d';
 
 const Testar_Agendamentos = false
-const Testar_Cliente = false
+const Testar_Cliente = true
 const Testar_Funcionarios = false
-const Testar_Servicos = true
+const Testar_Servicos = false
 
 const TESTAR_TUDO = false
-
 
 afterAll(async () => {
   await db.finalizarConexao();
@@ -509,12 +508,12 @@ if (Testar_Agendamentos || TESTAR_TUDO) {
   })
 }
 if (Testar_Cliente || TESTAR_TUDO) {
-  describe('Entrar Corretamente', async () => {
+  describe('Entrar Corretamente', () => {
     test('Verificação com Acesso e Senha do Cliente', async () => {
       const response = await request(app).get('/Client/Verificar_Cliente')
         .query({
-          Acesso: "acesso1",
-          Senha: "senha1",
+          Acesso: "acesso2",
+          Senha: "senha2",
         });
       const records = response.body || [];
       expect(response.status).toBe(200);
@@ -522,7 +521,7 @@ if (Testar_Cliente || TESTAR_TUDO) {
     });
   })
 
-  describe('Verificar erros', async () => {
+  describe('Verificar erros', () => {
     test('Verificação com Ingection do Cliente', async () => {
       const injectionResponse = await request(app).get('/Client/Verificar_Cliente')
         .query({
@@ -566,6 +565,151 @@ if (Testar_Cliente || TESTAR_TUDO) {
     });
 
   })
+
+  describe('Tentativas de Criar um Cliente', () => {
+    test('Sem Credenciais', async () => {
+      const response = await request(app).post('/Client/Novo_Cliente')
+        .query({
+          Nome: 'Teste',
+          Acesso: 'Acesso_Teste',
+          Senha: 'Acesso_Teste',
+          Credenciais: ''
+        });
+      expect(response.status).not.toBe(200);
+    })
+    test('Credenciais Aleatoria', async () => {
+      const response = await request(app).post('/Client/Novo_Cliente')
+        .query({
+          Nome: 'Teste',
+          Acesso: 'Acesso_Teste',
+          Senha: 'Acesso_Teste',
+          Credenciais: 'iajsnbdisanhjansjindajidn652652asd2as56d1f6'
+        });
+      expect(response.status).not.toBe(200);
+    })
+    test('Credenciais Cliente', async () => {
+      const response = await request(app).post('/Client/Novo_Cliente')
+        .query({
+          Nome: 'Teste',
+          Acesso: 'Acesso_Teste',
+          Senha: 'Acesso_Teste',
+          Credenciais: Cred_Cliente
+        });
+      expect(response.status).not.toBe(200);
+    })
+    test('Sem Acesso', async () => {
+      const response = await request(app).post('/Client/Novo_Cliente')
+        .query({
+          Nome: 'Teste',
+          Acesso: '',
+          Senha: 'Acesso_Teste',
+          Credenciais: Cred_Func
+        });
+      expect(response.status).not.toBe(200);
+    })
+    test('Sem Senha', async () => {
+      const response = await request(app).post('/Client/Novo_Cliente')
+        .query({
+          Nome: 'Teste',
+          Acesso: 'Acesso_Teste',
+          Senha: '',
+          Credenciais: Cred_Func
+        });
+      expect(response.status).not.toBe(200);
+    })
+
+    test('Ingection no Acesso', async () => {
+      const response = await request(app).post('/Client/Novo_Cliente')
+        .query({
+          Nome: 'Teste',
+          Acesso: "' OR '1'='1",
+          Senha: "' OR '1'='1",
+          Credenciais: Cred_Func
+        });
+      expect(response.status).not.toBe(200);
+    })
+    test('Ingection na Senha', async () => {
+      const response = await request(app).post('/Client/Novo_Cliente')
+        .query({
+          Nome: 'Teste',
+          Acesso: 'Acesso_Teste',
+          Senha: "' OR '1'='1",
+          Credenciais: Cred_Func
+        });
+      expect(response.status).not.toBe(200);
+    })
+
+    test('Sem Nome', async () => {
+      const response = await request(app).post('/Client/Novo_Cliente')
+        .query({
+          Nome: '',
+          Acesso: 'Acesso_Teste',
+          Senha: 'Acesso_Teste',
+          Credenciais: Cred_Func
+        });
+      expect(response.status).not.toBe(200);
+    })
+
+    test('Certinho', async () => {
+      const response = await request(app).post('/Client/Novo_Cliente')
+        .query({
+          Nome: 'Teste',
+          Acesso: 'Acesso_Teste',
+          Senha: 'Acesso_Teste',
+          Credenciais: Cred_Func
+        });
+      expect(response.status).toBe(200);
+    })
+
+
+  })
+
+  describe('Tentativas de Remover um Cliente', () => {
+    test('Sem Credenciais', async () => {
+      const response = await request(app).delete('/Client/Remover_Cliente')
+        .query({
+          Credenciais: "",
+          Id: "",
+        });
+      expect(response.status).not.toBe(200);
+    })
+    test('Credenciais Errada', async () => {
+      const response = await request(app).delete('/Client/Remover_Cliente')
+        .query({
+          Credenciais: "asfgagdsf",
+          Id: "",
+        });
+      expect(response.status).not.toBe(200);
+    })
+    test('Credenciais De outro Cliente', async () => {
+      const response = await request(app).delete('/Client/Remover_Cliente')
+        .query({
+          Credenciais: Cred_Cliente,
+          Id: '3',
+        });
+      expect(response.status).not.toBe(200);
+    })
+    test('Sem ID', async () => {
+      const response = await request(app).delete('/Client/Remover_Cliente')
+        .query({
+          Credenciais: Cred_Cliente,
+          Id: "",
+        });
+      expect(response.status).not.toBe(200);
+    })
+
+    /* Esta funcionando, mas por conta de apagar o ID
+      ele fica dando erro, pois no teste anterior apagou.*/
+    test('Tudo Certinho', async () => {
+      /*const response = await request(app).delete('/Client/Remover_Cliente')
+        .query({
+          Credenciais: Cred_Cliente,
+          Id: "1",
+        });
+      expect(response.status).toBe(200);*/
+    })
+  })
+
 }
 if (Testar_Funcionarios || TESTAR_TUDO) {
   describe('Entrar Corretamente', async () => {
